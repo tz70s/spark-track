@@ -1,0 +1,6 @@
+target/
+.idea/
+
+# Data for testing detection.
+# Associate with set of configurations.
+data/
