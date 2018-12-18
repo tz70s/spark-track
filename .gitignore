@@ -4,3 +4,6 @@ target/
 # Data for testing detection.
 # Associate with set of configurations.
 data/
+
+# Unmanaged lib (OpenCV).
+lib/
