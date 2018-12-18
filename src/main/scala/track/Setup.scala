@@ -1,7 +1,5 @@
 package track
 
-import java.nio.file.{Path, Paths}
-
 import org.apache.spark.sql.{Dataset, SparkSession}
 
 object DefaultConfig {
@@ -22,12 +20,7 @@ object Setup {
 
 case class Setup(cls: YoloClasses, net: NetworkSetup)
 
-case class NetworkSetup private (cfg: Path, weight: Path)
-
-object NetworkSetup {
-  def apply(cfg: String, weight: String): NetworkSetup =
-    new NetworkSetup(Paths.get(cfg), Paths.get(weight))
-}
+case class NetworkSetup(cfg: String, weight: String)
 
 case class YoloClasses private (list: List[String])
 
