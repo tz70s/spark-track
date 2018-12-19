@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>View Reloader</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+
+<body onload="refresh()">
+  <div>
+    <img id="img" src="../data/capture.jpg">
+  </div>
+
+  <script>
+    function refresh() {
+      (function interval_reloading() {
+        const source = "../data/capture.jpg";
+        const timestamp = (new Date()).getTime();
+        const newUrl = source + "?_=" + timestamp;
+        document.getElementById("img").src = newUrl;
+        setInterval(interval_reloading, 1000);
+      })();
+    }
+    window.onload = function () {
+      refresh();
+    }
+  </script>
+</body>
+
+</html>
