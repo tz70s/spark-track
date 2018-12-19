@@ -2,7 +2,7 @@ package track
 
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.streaming.{Seconds, StreamingContext}
-import track.hack.{CameraReceiver, Capture}
+import track.hack.CameraReceiver
 
 import scala.concurrent.duration._
 
@@ -32,7 +32,8 @@ object SparkTrack {
     val frames = ssc.receiverStream(CameraReceiver(1.second))
     frames
       .map(capturedMat => capturedMat.toMat)
-      .foreachRDD(rdd => rdd.foreach(Capture.saveImage))
+      .map(mat => Inference.run(mat, setup))
+      .print()
 
     // Since Spark run in parallel, the exception will not be handled remotely and correctly.
     // Add a shutdown hook to close out.
