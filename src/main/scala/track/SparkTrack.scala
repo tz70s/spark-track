@@ -8,11 +8,10 @@ import scala.concurrent.duration._
 
 object SparkTrack {
 
-  val SparkJMXConf =
-  "spark.driver.extraJavaOptions" ->
-  """-Dcom.sun.management.jmxremote.port=9292
-        |-Dcom.sun.management.jmxremote.ssl=false
-        |-Dcom.sun.management.jmxremote.authenticate=false""".stripMargin
+  val SparkJMXConf = "spark.driver.extraJavaOptions" ->
+  Seq("-Dcom.sun.management.jmxremote.port=9292",
+      "-Dcom.sun.management.jmxremote.ssl=false",
+      "-Dcom.sun.management.jmxremote.authenticate=false").mkString(" ")
 
   def main(args: Array[String]): Unit = {
 
@@ -26,14 +25,16 @@ object SparkTrack {
 
     spark.sparkContext.setLogLevel("ERROR")
 
-    // val setup = Setup.loadWithFallback(spark)
-
-    // setup.cls.list.foreach(println)
+    val setup = Setup.loadWithFallback(spark)
 
     val ssc = new StreamingContext(spark.sparkContext, Seconds(1))
 
     val frames = ssc.receiverStream(CameraReceiver(1.second))
-    frames.window(Seconds(10)).count().print()
+    frames
+      .map(capturedMat => capturedMat.toMat)
+      .map(mat => Serve.forward(mat, setup))
+      .map(_.toString)
+      .print()
 
     // Since Spark run in parallel, the exception will not be handled remotely and correctly.
     // Add a shutdown hook to close out.

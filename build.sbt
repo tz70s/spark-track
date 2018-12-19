@@ -3,7 +3,7 @@ ThisBuild / version := "0.1"
 ThisBuild / scalaVersion := "2.12.8"
 
 // Manually link OpenCV jar file.
-val opencv = file("lib/opencv-343.jar")
+val opencv = file("lib/opencv-400.jar")
 
 val JvmOpts = Seq(
   "-Xms512M",
@@ -32,6 +32,7 @@ lazy val linkLibSettings = Seq(
 lazy val jvmForkSettings = Seq(
   run / fork := true,
   run / javaOptions ++= JvmOpts,
+  reStart / javaOptions ++= JvmOpts,
   outputStrategy := Some(StdoutOutput)
 )
 

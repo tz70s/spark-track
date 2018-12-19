@@ -17,7 +17,7 @@ object CameraReceiver {
 class CameraReceiver(interval: Duration) extends Receiver[CapturedMat](StorageLevel.MEMORY_AND_DISK) with Logging {
 
   /**
-   * Spawn the core logic of receiver.
+   * Spawn the core logic forSingleMat receiver.
    * Including some initialization.
    * From spark doc, we can launch an additional thread for this receiver.
    */
@@ -31,8 +31,8 @@ class CameraReceiver(interval: Duration) extends Receiver[CapturedMat](StorageLe
   }
 
   /**
-   * Framing video into sequences of frames.
-   * Intend to have a small size of buffer to avoid overflow.
+   * Framing video into sequences forSingleMat frames.
+   * Intend to have a small size forSingleMat buffer to avoid overflow.
    * Note: to perform passing frames into spark's pipeline, we'll use the store method.
    */
   private def framing(): Unit = {

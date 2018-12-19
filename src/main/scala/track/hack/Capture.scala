@@ -10,7 +10,7 @@ import scala.util.control.NonFatal
 
 object Capture {
 
-  private val log = LogManager.getLogger(this.getClass)
+  @transient private[hack] val log = LogManager.getLogger(classOf[Capture])
 
   def apply(): Capture = {
     try {
@@ -36,19 +36,23 @@ object Capture {
  * This case class should be serializable and pass within spark.
  */
 @SerialVersionUID(1L)
-case class CapturedMat(rows: Int, cols: Int, tpe: Int, data: Array[Byte], cameraId: Int = 0) {
+case class CapturedMat(rows: Int, cols: Int, tpe: Int, data: String, cameraId: Int = 0) {
   def toMat: Mat = {
     val mat = new Mat(rows, cols, tpe)
     mat.put(0, 0, Base64.getDecoder.decode(data))
     mat
   }
+
+  override def toString: String =
+    // Omit data value.
+    s"CapturedMat(rows = $rows, cols = $cols, tpe = $tpe, data=omit, cameraId = $cameraId)"
 }
 
 object CapturedMat {
   def apply(mat: Mat): CapturedMat = {
-    val data = Array.ofDim[Byte]((mat.total() * mat.channels()).asInstanceOf[Int])
+    val data = new Array[Byte]((mat.total() * mat.channels()).asInstanceOf[Int])
     mat.get(0, 0, data)
-    CapturedMat(mat.rows(), mat.cols(), mat.`type`(), data)
+    CapturedMat(mat.rows(), mat.cols(), mat.`type`(), Base64.getEncoder.encodeToString(data))
   }
 }
 
