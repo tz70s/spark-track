@@ -1,6 +1,6 @@
 # spark-track
 
-Object tracking via Yolo and Spark, in Scala and Java.
+Demo object detection via Apache Spark, OpenCV and Yolo, in Scala/Java.
 
 ## Execution
 

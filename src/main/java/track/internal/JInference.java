@@ -5,12 +5,12 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.dnn.Dnn;
 import org.opencv.dnn.Net;
+import track.InfVal;
 import track.NetworkSetup;
+import track.Setup;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static track.internal.OverlapReduction.ReductionForm;
 
 public class JInference {
 
@@ -29,28 +29,28 @@ public class JInference {
      * <p>This is actually a factory method for creating internal forwarder and overlap reduction
      * phases.
      *
-     * @param mat handled blob for network.
+     * @param image captured image for inference.
      * @param setup [[NetworkSetup]] case class.
      * @return list runForSingleMat final yolo layer outputs, in [[Mat]].
      */
-    public static ReductionForm runForSingleMat(Mat mat, NetworkSetup setup) {
-        List<Mat> layerOutputs = JInference.runSingle(mat, setup);
-        return OverlapReduction.from(layerOutputs);
+    public static InfVal runForSingleMat(Mat image, Setup setup) {
+        List<Mat> layerOutputs = JInference.runSingle(image, setup.getNetSetup());
+        OverlapInfVal infVal = new OverlapInfVal(image, layerOutputs, setup.getClasses());
+        return infVal.reduceOverlapBoxes();
     }
 
-    private static List<Mat> runSingle(Mat mat, NetworkSetup setup) {
-        Mat blob = matIntoBlob(mat);
+    private static List<Mat> runSingle(Mat image, NetworkSetup setup) {
+        Mat blob = imageIntoBlob(image);
         JInference inference = new JInference(setup);
         return inference.forward(blob);
     }
 
     /** Convert image mat into blob. */
-    private static Mat matIntoBlob(Mat mat) {
+    private static Mat imageIntoBlob(Mat image) {
         Size size = new Size(BlobWidth, BlobHeight);
         Scalar scalar = new Scalar(0, 0, 0);
-        return Dnn.blobFromImage(mat, Scale, size, scalar, true, false);
+        return Dnn.blobFromImage(image, Scale, size, scalar, true, false);
     }
-
 
     /**
      * Create a inference and return the layerOutputs.
@@ -75,6 +75,6 @@ public class JInference {
     }
 
     private JInference(NetworkSetup setup) {
-        this.net = Dnn.readNet(setup.cfg(), setup.weight());
+        this.net = Dnn.readNet(setup.getConfig(), setup.getWeight());
     }
 }

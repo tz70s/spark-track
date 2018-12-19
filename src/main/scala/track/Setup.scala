@@ -1,6 +1,10 @@
 package track
 
+import java.util.{List => JList}
+
 import org.apache.spark.sql.{Dataset, SparkSession}
+
+import scala.collection.JavaConverters._
 
 object DefaultConfig {
   val YoloClassesPath = defaultValue("txt")
@@ -18,9 +22,23 @@ object Setup {
     Setup(YoloClasses(spark.read.textFile(YoloClassesPath)), NetworkSetup(YoloSetupPath, YoloWeightsPath))
 }
 
-case class Setup(cls: YoloClasses, net: NetworkSetup)
+case class Setup(private val cls: YoloClasses, private val net: NetworkSetup) {
 
-case class NetworkSetup(cfg: String, weight: String)
+  /** Java API. */
+  def getNetSetup: NetworkSetup = net
+
+  /** Java API. */
+  def getClasses: JList[String] = cls.list.asJava
+}
+
+case class NetworkSetup(private val cfg: String, private val weight: String) {
+
+  /** Java API. */
+  def getConfig: String = cfg
+
+  /** Java API. */
+  def getWeight: String = weight
+}
 
 case class YoloClasses private (list: List[String])
 

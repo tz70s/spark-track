@@ -18,7 +18,7 @@
         const timestamp = (new Date()).getTime();
         const newUrl = source + "?_=" + timestamp;
         document.getElementById("img").src = newUrl;
-        setInterval(interval_reloading, 1000);
+        setTimeout(interval_reloading, 300);
       })();
     }
     window.onload = function () {

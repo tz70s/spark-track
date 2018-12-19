@@ -1,18 +1,32 @@
 package track
 
-import org.apache.log4j.LogManager
+import java.lang.{Float => JFloat}
+import java.util.{Map => JMap}
+
 import org.opencv.core._
 import track.internal.JInference
 
+import scala.collection.JavaConverters._
+
+/**
+ * Shorthand for Inference Value.
+ * Carry with a image (matrix) with labels and boxes, and pure labels and confidences.
+ */
+case class InfVal(labeledImage: Mat, classWithConf: Map[String, Float]) {
+  override def toString: String =
+    s"Class with confidence: $classWithConf"
+}
+
+object InfVal {
+
+  /**
+   * Java API.
+   */
+  def of(labeledImage: Mat, classWithConf: JMap[String, JFloat]) =
+    InfVal(labeledImage, classWithConf.asScala.toMap.mapValues(jFloat => float2Float(jFloat)))
+}
+
 object Inference {
-
-  // Upper confidence.
-  val ConfidenceThreshold = 0.5f
-
-  // Perform non maximum suppression (NMS) to eliminate redundant overlapping boxes with lower confidences
-  val NmsThreshold = 0.3f
-
-  private val log = LogManager.getLogger("Serve")
 
   /**
    * Forward mat to network and producing output.
@@ -22,9 +36,6 @@ object Inference {
    *
    * @param mat The input OpenCV matrix.
    */
-  def run(mat: Mat, setup: Setup): String = {
-
-    val reductions = JInference.runForSingleMat(mat, setup.net)
-    s"$reductions"
-  }
+  def run(mat: Mat, setup: Setup): InfVal =
+    JInference.runForSingleMat(mat, setup)
 }
