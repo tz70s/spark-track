@@ -1,7 +1,17 @@
-lazy val commonSettings = Seq(
-  name := "spark-track",
-  version := "0.1",
-  scalaVersion := "2.12.8"
+ThisBuild / name := "spark-track"
+ThisBuild / version := "0.1"
+ThisBuild / scalaVersion := "2.12.8"
+
+// Manually link OpenCV jar file.
+val opencv = file("lib/opencv-343.jar")
+
+val JvmOpts = Seq(
+  "-Xms512M",
+  "-Xmx2G",
+  "-Djava.library.path=lib",
+  "-Dcom.sun.management.jmxremote.port = 9292",
+  "-Dcom.sun.management.jmxremote.ssl = false",
+  "-Dcom.sun.management.jmxremote.authenticate = false"
 )
 
 val sparkId = "org.apache.spark"
@@ -14,10 +24,18 @@ val scalaTest = "org.scalatest" %% "scalatest" % scalaTestVersion % Test
 
 val libs = Seq(sparkStreaming, sparkSql, scalaTest)
 
+lazy val linkLibSettings = Seq(
+  Compile / unmanagedJars += opencv,
+  Test / unmanagedJars += opencv
+)
+
+lazy val jvmForkSettings = Seq(
+  run / fork := true,
+  run / javaOptions ++= JvmOpts,
+  outputStrategy := Some(StdoutOutput)
+)
+
 lazy val `spark-track` = (project in file("."))
-  .settings(
-    commonSettings,
-    libraryDependencies ++= libs,
-    Runtime / unmanagedJars += file("lib/opencv-343.jar"),
-    Compile / unmanagedJars += file("lib/opencv-343.jar")
-  )
+  .settings(libraryDependencies ++= libs)
+  .settings(linkLibSettings)
+  .settings(jvmForkSettings)

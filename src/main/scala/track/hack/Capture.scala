@@ -19,9 +19,10 @@ object Capture {
       case e: UnsatisfiedLinkError =>
         log.error(
           s"Fatal error to load OpenCV native library, a.k.a JNI error." +
-          s"Checkout the library linking is correct via JVM options."
+          s"Checkout the library linking is correct via JVM options. Message : ${e.getMessage}"
         )
-        throw e
+        // Fixme: find a better way to handle this.
+        sys.exit(1)
     }
     new Capture()
   }
